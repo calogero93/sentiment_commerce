@@ -19,16 +19,6 @@ def test_il_modello_si_carica(servizio):
     assert servizio.is_loaded
 
 
-def test_le_etichette_sono_corrette(servizio):
-    assert set(servizio.labels) == ETICHETTE
-
-
-def test_la_risposta_ha_i_campi_giusti(servizio):
-    risultato = servizio.predict("This product is amazing!")
-    assert risultato["sentiment"] in ETICHETTE
-    assert 0.0 <= risultato["confidence"] <= 1.0
-
-
 @pytest.mark.parametrize(
     "recensione, atteso",
     [

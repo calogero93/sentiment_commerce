@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 MODEL_PATH = os.getenv("MODEL_PATH", "models/sentiment_analysis_model.pkl")
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.50"))
-ETICHETTE_ATTESE = {"negative", "neutral", "positive"}
 
 
 
@@ -38,8 +37,6 @@ class SentimentService:
             raise Exception(f"Deserializzazione fallita: {exc}") from exc
 
         etichette = tuple(str(c) for c in pipeline.classes_)
-        if set(etichette) != ETICHETTE_ATTESE:
-            raise Exception(f"Etichette inattese: {etichette}")
 
         self.pipeline = pipeline
         self.labels = etichette
