@@ -1,0 +1,10 @@
+# Dice a Grafana di caricare le dashboard dai file JSON in questa cartella.
+
+apiVersion: 1
+
+providers:
+  - name: dashboards
+    type: file
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
