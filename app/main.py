@@ -11,6 +11,8 @@ from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     Counter,
@@ -47,7 +49,8 @@ errori = Counter(
 )
 modello_caricato = Gauge("model_loaded", "1 se il modello è in memoria, 0 altrimenti.")
 
-
+for _tipo in ("validation", "inference", "model_unavailable"):
+    errori.labels(error_type=_tipo)
 
 class PredictRequest(BaseModel):
     review: str
@@ -71,21 +74,28 @@ class PredictResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Carica il modello una volta sola all'avvio, non a ogni richiesta."""
-    try:
-        service.load()
-        modello_caricato.set(1)
-    except Exception:
-        modello_caricato.set(0)
-        logger.exception("Avvio senza modello: /predict risponderà 503.")
+    """Carica il modello una volta sola all'avvio, non a ogni richiesta.
+        se fallisce il load il programma esce, non ha senso continuare senza modello
+    """
+    service.load()          
+    modello_caricato.set(1)
     yield
 
 
 app = FastAPI(title="Sentiment Analysis API", version="1.0.0", lifespan=lifespan)
 
+@app.exception_handler(RequestValidationError)
+async def conta_422(request: Request, exc: RequestValidationError):
+    errori.labels(error_type="validation").inc()
+    return await request_validation_exception_handler(request, exc)
 
+
+# la scelta del middleware dipende dal fatto che voglio misurare e tenere traccia 
+# di ogni chiamata
 @app.middleware("http")
 async def misura(request: Request, call_next):
+    # metric lo escludo perchè altrimenti misurerebbe anche le chiamate a metrics
+    # che vengono fatte periodicamente, e riempiremmo le metriche di tanto rumore inutile
     if request.url.path == "/metrics":
         return await call_next(request)
 
@@ -98,8 +108,10 @@ async def misura(request: Request, call_next):
     return risposta
 
 
+# Qua utilizzo def non async perchè dentro chiama una fuziona sincrona bloccante
+# Con 'async def' girerebbe sull'event loop e bloccherebbe TUTTE le richieste per la sua durata
 @app.post("/predict", response_model=PredictResponse)
-async def predict(payload: PredictRequest) -> PredictResponse:
+def predict(payload: PredictRequest) -> PredictResponse:
     if not service.is_loaded:
         errori.labels(error_type="model_unavailable").inc()
         raise HTTPException(status_code=503, detail="Modello non disponibile.")
