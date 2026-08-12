@@ -3,15 +3,25 @@
   "uid": "sentiment-api",
   "timezone": "browser",
   "refresh": "10s",
-  "time": { "from": "now-30m", "to": "now" },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
   "panels": [
     {
       "id": 1,
       "type": "timeseries",
       "title": "Tempo di risposta (p50 / p95)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
       "fieldConfig": {
-        "defaults": { "unit": "s" },
+        "defaults": {
+          "unit": "s"
+        },
         "overrides": []
       },
       "targets": [
@@ -31,8 +41,18 @@
       "id": 2,
       "type": "timeseries",
       "title": "Richieste al secondo, per codice di stato",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
-      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "sum(rate(http_requests_total[1m])) by (status_code)",
@@ -45,7 +65,12 @@
       "id": 3,
       "type": "piechart",
       "title": "Predizioni per sentimento",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
       "targets": [
         {
           "expr": "sum(predictions_total) by (sentiment)",
@@ -57,15 +82,26 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Errori di predizione (totale)",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "title": "Errori, per tipo",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 8
+      },
       "fieldConfig": {
         "defaults": {
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "red", "value": 1 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
             ]
           }
         },
@@ -73,8 +109,8 @@
       },
       "targets": [
         {
-          "expr": "sum(prediction_errors_total)",
-          "legendFormat": "errori",
+          "expr": "sum(prediction_errors_total) by (error_type)",
+          "legendFormat": "{{error_type}}",
           "refId": "A"
         }
       ]
@@ -83,15 +119,26 @@
       "id": 5,
       "type": "stat",
       "title": "Stato del modello",
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 8
+      },
       "fieldConfig": {
         "defaults": {
           "mappings": [
             {
               "type": "value",
               "options": {
-                "0": { "text": "NON CARICATO", "color": "red" },
-                "1": { "text": "CARICATO", "color": "green" }
+                "0": {
+                  "text": "NON CARICATO",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "CARICATO",
+                  "color": "green"
+                }
               }
             }
           ]
@@ -99,18 +146,32 @@
         "overrides": []
       },
       "targets": [
-        { "expr": "model_loaded", "legendFormat": "modello", "refId": "A" }
+        {
+          "expr": "model_loaded",
+          "legendFormat": "modello",
+          "refId": "A"
+        }
       ]
     },
     {
       "id": 6,
       "type": "timeseries",
       "title": "Utilizzo CPU",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
-      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "expr": "rate(process_cpu_seconds_total[1m])",
+          "expr": "rate(process_cpu_seconds_total{job=\"sentiment-api\"}[1m])",
           "legendFormat": "CPU",
           "refId": "A"
         }
@@ -120,11 +181,21 @@
       "id": 7,
       "type": "timeseries",
       "title": "Memoria occupata",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
-          "expr": "process_resident_memory_bytes",
+          "expr": "process_resident_memory_bytes{job=\"sentiment-api\"}",
           "legendFormat": "RSS",
           "refId": "A"
         }
