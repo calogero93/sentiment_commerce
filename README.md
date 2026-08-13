@@ -189,6 +189,11 @@ Non userò il webhook in queso caso ma il poolSCM per evitare di esporre jenkins
 Al termine, il blocco `post` invia una notifica via email in caso di successo o
 di fallimento.
 
+Le notifiche sono implementate ma non attive in locale: Jenkins prova a
+consegnare su un server SMTP che nell'ambiente di sviluppo non esiste. La
+chiamata è racchiusa in un `catchError`, quindi una notifica non recapitata non
+altera l'esito della build.
+
 ### Trigger automatico
 
 La pipeline parte a ogni commit tramite il webhook di GitHub. Configurazione:
