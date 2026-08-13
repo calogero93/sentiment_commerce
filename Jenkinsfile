@@ -77,15 +77,18 @@ pipeline {
     post {
         success {
             echo "Pipeline completata: immagine ${IMAGE} rilasciata."
-            mail to: 'team@example.com',
-                 subject: "OK - ${env.JOB_NAME} build #${env.BUILD_NUMBER}",
-                 body: "La pipeline e' andata a buon fine.\n${env.BUILD_URL}"
+            catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                mail to: 'team@example.com',
+                    subject: "OK - ${env.JOB_NAME} build #${env.BUILD_NUMBER}",
+                    body: "La pipeline e' andata a buon fine.\n${env.BUILD_URL}"
+            }
         }
         failure {
             echo 'Pipeline fallita.'
-            mail to: 'team@example.com',
-                 subject: "ERRORE - ${env.JOB_NAME} build #${env.BUILD_NUMBER}",
-                 body: "La pipeline e' fallita. Dettagli:\n${env.BUILD_URL}"
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                mail to: 'team@example.com',
+                    subject: "ERRORE - ${env.JOB_NAME} build #${env.BUILD_NUMBER}",
+                    body: "La pipeline e' fallita. Dettagli:\n${env.BUILD_URL}"
+            }
         }
     }
-}
