@@ -66,7 +66,7 @@ pipeline {
                         ${IMAGE}
 
                     sleep 5
-                    curl -f http://localhost:${PORTA}/health
+                    docker exec ${CONTAINER_NAME} curl -f http://localhost:8000/health
                 '''
             }
         }
