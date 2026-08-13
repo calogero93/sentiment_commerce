@@ -177,6 +177,8 @@ L'indirizzo dell'API nei test di integrazione si configura con la variabile
 
 Il `Jenkinsfile` definisce quattro stage:
 
+Non userò il webhook in queso caso ma il poolSCM per evitare di esporre jenkins, perchè github in quel caso dovrebbe chiamarlo
+
 1. **Build** — costruisce l'immagine Docker. L'immagine si costruisce *prima* dei
    test, così quella che va in produzione è esattamente quella testata.
 2. **Unit test** — in un container temporaneo, senza dipendenze esterne.

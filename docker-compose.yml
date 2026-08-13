@@ -34,7 +34,19 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+    restart: unless-stopped
 
 volumes:
   prometheus-data:
   grafana-data:
+  jenkins_home:
